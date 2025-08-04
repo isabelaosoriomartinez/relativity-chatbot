@@ -16,20 +16,30 @@ Backend API para el chatbot de Relativity FAQ usando IBM Watsonx.ai.
    ```bash
    ibmcloud ce project create --name relativity-chatbot
    ibmcloud ce project select --name relativity-chatbot
-   ibmcloud ce app create --name relativity-backend --image docker.io/library/python:3.11-slim
    ```
 
-3. **Configurar variables de entorno**
+3. **Construir y desplegar**
    ```bash
-   ibmcloud ce app update --name relativity-backend \
+   # Construir imagen
+   ibmcloud ce build create --name relativity-backend-build --source .
+   
+   # Desplegar aplicación
+   ibmcloud ce app create --name relativity-backend \
+     --image relativity-backend:latest \
+     --port 8080 \
+     --cpu 1 \
+     --memory 2Gi \
      --env IBM_WATSONX_API_KEY=your_api_key \
      --env IBM_WATSONX_PROJECT_ID=your_project_id \
-     --env GOOGLE_SHEETS_CREDENTIALS=your_credentials_json
+     --env GOOGLE_SHEETS_CREDENTIALS=your_credentials_json \
+     --env ALLOWED_ORIGINS=https://your-streamlit-app.share.streamlit.io \
+     --env CHATBOT_PORT=8080 \
+     --env CHATBOT_HOST=0.0.0.0
    ```
 
-4. **Desplegar**
+4. **Verificar despliegue**
    ```bash
-   ibmcloud ce app deploy --name relativity-backend --source .
+   ibmcloud ce app get --name relativity-backend
    ```
 
 ### Opción 2: Docker Local

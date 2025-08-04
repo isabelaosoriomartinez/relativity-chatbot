@@ -25,7 +25,10 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend integration
+
+# Configure CORS for production
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}})
 
 # Global variables for components
 rag_pipeline = None
@@ -227,7 +230,7 @@ if __name__ == '__main__':
         sys.exit(1)
     
     # Get port from environment or use default
-    port = int(os.getenv('CHATBOT_PORT', 5000))
+    port = int(os.getenv('CHATBOT_PORT', 8080))
     host = os.getenv('CHATBOT_HOST', '0.0.0.0')
     
     logger.info(f"Starting Flask server on {host}:{port}")

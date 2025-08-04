@@ -22,11 +22,11 @@ COPY . .
 RUN mkdir -p ./chroma_db
 
 # Expose port
-EXPOSE 5000
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
-# Run the application
-CMD ["python", "app.py"] 
+# Run the application with gunicorn
+CMD ["gunicorn", "-w", "2", "-k", "gthread", "-b", "0.0.0.0:8080", "app:app"] 

@@ -1,0 +1,33 @@
+apiVersion: codeengine.cloud.ibm.com/v1
+kind: Application
+metadata:
+  name: relativity-backend
+spec:
+  image: relativity-backend:latest
+  port: 8080
+  env:
+    - name: IBM_WATSONX_API_KEY
+      value: "your_api_key_here"
+    - name: IBM_WATSONX_PROJECT_ID
+      value: "your_project_id_here"
+    - name: GOOGLE_SHEETS_CREDENTIALS
+      value: "your_credentials_json_here"
+    - name: ALLOWED_ORIGINS
+      value: "https://your-streamlit-app.share.streamlit.io"
+    - name: CHATBOT_PORT
+      value: "8080"
+    - name: CHATBOT_HOST
+      value: "0.0.0.0"
+  resources:
+    cpu: 1
+    memory: 2Gi
+  scaling:
+    min: 1
+    max: 3
+  healthCheck:
+    path: /health
+    port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3 
