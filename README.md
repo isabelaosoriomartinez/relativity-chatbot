@@ -1,112 +1,134 @@
 # Relativity FAQ Chatbot - MVP
 
-A conversational chatbot that answers questions about Relativity releases using IBM watsonx.ai models and Flask backend with Streamlit frontend.
+Chatbot inteligente para responder preguntas sobre las notas de versión de Relativity usando IBM Watsonx.ai.
 
-## 🚀 Quick Start
+## 🏗️ Arquitectura
 
-### 1. Setup Environment
+El proyecto está separado en dos componentes independientes:
+
+### Frontend (Streamlit)
+- **Ubicación**: `frontend_streamlit/`
+- **Tecnología**: Streamlit
+- **Despliegue**: Streamlit Cloud, Heroku, o cualquier hosting
+- **Dependencias**: Mínimas (solo `streamlit` y `requests`)
+
+### Backend (IBM)
+- **Ubicación**: `backend_ibm/`
+- **Tecnología**: Flask + IBM Watsonx.ai
+- **Despliegue**: IBM Code Engine, Cloud Foundry
+- **Dependencias**: Complejas (LangChain, ChromaDB, IBM Watson)
+
+## 🚀 Despliegue Rápido
+
+### 1. Backend IBM
+
 ```bash
-# Install dependencies
-pip install -r requirements_ibm.txt
+cd backend_ibm
+# Configurar variables de entorno
+export IBM_WATSONX_API_KEY=your_api_key
+export IBM_WATSONX_PROJECT_ID=your_project_id
+export GOOGLE_SHEETS_CREDENTIALS=your_credentials_json
 
-# Copy environment template
-cp env_template.txt .env
-# Edit .env with your credentials
+# Desplegar en IBM Code Engine
+ibmcloud ce app create --name relativity-backend --source .
 ```
 
-### 2. Run Data Ingestion
+### 2. Frontend Streamlit
+
 ```bash
-python ingest.py
+cd frontend_streamlit
+# Configurar URL del backend
+export API_BASE_URL=https://your-backend-url.codeengine.appdomain.cloud
+
+# Desplegar en Streamlit Cloud
+# Subir a GitHub y conectar con share.streamlit.io
 ```
 
-### 3. Start the Application
+## 🔧 Desarrollo Local
+
+### Backend
 ```bash
-# Terminal 1 (Backend)
+cd backend_ibm
+pip install -r requirements.txt
 python app.py
+```
 
-# Terminal 2 (Frontend)
+### Frontend
+```bash
+cd frontend_streamlit
+pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-### 4. Access the Application
-- **Frontend**: http://localhost:8501
-- **Backend API**: http://localhost:5000
+## 📋 Características
 
-## 📁 Project Structure
+### 🤖 Chatbot Inteligente
+- Respuestas basadas en RAG (Retrieval-Augmented Generation)
+- Citas automáticas con URLs y títulos
+- Soporte multilingüe (ES/EN)
+- Prevención de alucinaciones
 
-```
-├── app.py                 # Flask backend API
-├── streamlit_app.py       # Streamlit frontend
-├── rag_ibm.py            # RAG pipeline with IBM watsonx.ai
-├── ingest.py             # Data ingestion
-├── sheets.py             # Google Sheets integration
-├── requirements_ibm.txt  # Dependencies
-├── Dockerfile            # Container config
-├── docker-compose.yml    # Multi-service setup
-└── test_setup.py         # Testing utilities
-```
+### 📝 Gestión de Contactos
+- Formulario de contacto cuando no hay información suficiente
+- Validación de datos
+- Integración con Google Sheets
+- Timestamp automático
 
-## 🔧 Configuration
+### 🔗 Arquitectura Separada
+- Frontend y backend independientes
+- Comunicación vía HTTP REST
+- Escalabilidad independiente
+- Despliegue flexible
 
-### Environment Variables
-```env
-# IBM Watsonx.ai
-IBM_WATSONX_API_KEY=your_api_key
-IBM_WATSONX_PROJECT_ID=your_project_id
+## 🛠️ Tecnologías
 
-# Google Sheets
-GOOGLE_SHEETS_CREDENTIALS_PATH=path/to/credentials.json
-GOOGLE_SHEET_ID=your_sheet_id
+### Backend
+- **Flask**: API REST
+- **LangChain**: Pipeline RAG
+- **ChromaDB**: Vector store
+- **IBM Watsonx.ai**: LLM (Llama 2/3, Mistral)
+- **Google Sheets API**: Logging de contactos
 
-# Flask Configuration
-CHATBOT_PORT=5000
-CHATBOT_HOST=0.0.0.0
+### Frontend
+- **Streamlit**: UI interactiva
+- **Requests**: Comunicación HTTP
+- **CSS personalizado**: Estilos modernos
 
-# Frontend Configuration
-BACKEND_URL=http://127.0.0.1:5000
-```
+## 📊 Monitoreo
 
-## 🧪 Testing
+### Backend
+- Health check: `GET /health`
+- Logs: `ibmcloud ce app logs --name relativity-backend`
 
-### Manual Testing
-```powershell
-# Test backend health
-Invoke-RestMethod -Uri "http://127.0.0.1:5000/health" -Method GET
+### Frontend
+- Estado de conexión en sidebar
+- Test de backend integrado
+- Manejo de errores visual
 
-# Test chatbot
-Invoke-RestMethod -Uri "http://127.0.0.1:5000/chatbot" -Method POST -ContentType "application/json" -Body '{"question":"What are the new features?"}'
+## 🔐 Seguridad
 
-# Test contact collection
-Invoke-RestMethod -Uri "http://127.0.0.1:5000/collect_contact" -Method POST -ContentType "application/json" -Body '{"name":"Test User","email":"test@example.com","organization":"Test Corp","original_question":"Test question"}'
-```
+- Variables de entorno para credenciales
+- Validación de entrada
+- CORS configurado
+- Timeouts en requests
 
-### Automated Testing
-```bash
-python test_setup.py
-```
+## 📈 Escalabilidad
 
-## 🐳 Docker Deployment
-```bash
-# Local development
-docker-compose up
+- Backend serverless en IBM Cloud
+- Frontend estático en Streamlit Cloud
+- Separación de responsabilidades
+- Cache de embeddings
 
-# Production (IBM Code Engine)
-# Follow deploy_ibm_code_engine.md
-```
+## 🎯 Casos de Uso
 
-## 📚 Documentation
+1. **Preguntas sobre releases**: "¿Qué hay de nuevo en RelativityOne 2024.1?"
+2. **Búsqueda de features**: "¿Cuándo se agregó la funcionalidad X?"
+3. **Información técnica**: "¿Cuáles son los requisitos del sistema?"
+4. **Contacto cuando no hay info**: Solicita datos automáticamente
 
-- **deploy_ibm_code_engine.md**: Production deployment guide
-- **setup_google_sheets.md**: Google Sheets setup
+## 📚 Documentación
 
-## 🎯 Features
-
-- ✅ Conversational FAQ interface with Streamlit
-- ✅ IBM watsonx.ai LLM integration
-- ✅ Contact information collection
-- ✅ Google Sheets logging
-- ✅ Citation tracking
-- ✅ Docker containerization
-- ✅ Flask RESTful API
-- ✅ Real-time chat interface
-- ✅ Backend health monitoring 
+- [Backend README](backend_ibm/README.md)
+- [Frontend README](frontend_streamlit/README.md)
+- [Configuración IBM Cloud](backend_ibm/README.md#despliegue-en-ibm-cloud)
+- [Configuración Streamlit Cloud](frontend_streamlit/README.md#opción-1-streamlit-cloud-recomendado) 
